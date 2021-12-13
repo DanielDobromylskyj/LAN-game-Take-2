@@ -16,7 +16,7 @@ while True:
         while True:
             if connected == True:
                 # start game
-                pass
+                s.sendall(b'd_2,1')
 
 
 

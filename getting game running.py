@@ -45,7 +45,7 @@ class Player():
 
 		key = pygame.key.get_pressed()
 		if key[pygame.K_UP] and self.jumped == False:
-			self.vel_y = -1.5
+			self.vel_y = -1
 			self.jumped = True
 		if key[pygame.K_UP] == False and self.vel_y == 0:
 			self.jumped = False
@@ -79,9 +79,9 @@ class Player():
 
 
 		#gravity
-		self.vel_y += 0.01
-		if self.vel_y > 7:
-			self.vel_y = 6
+		self.vel_y += 0.006
+		if self.vel_y > 8:
+			self.vel_y = 8
 		dy += self.vel_y
 
 		#check for collision
@@ -105,18 +105,6 @@ class Player():
 
 		#update player coordinates
 
-		print("Before: ", dx)
-
-		if dx > 0.5:
-			dx = 0.5
-
-		if dx < -0.5:
-			dx = -0.5
-
-		print(dx)
-
-		print(self.rect.x)
-
 		self.rect.x += dx
 		self.rect.y += dy
 
@@ -124,9 +112,12 @@ class Player():
 			self.rect.bottom = screen_height
 			dy = 0
 
+
 		#draw player onto screen
 		win.blit(self.image, self.rect)
 		pygame.draw.rect(win, (255, 255, 255), self.rect, 2)
+		#win.blit(self.FOW, (self.rect.x - 600, self.rect.y - 400))
+
 
 class World():
     def __init__(self, data):

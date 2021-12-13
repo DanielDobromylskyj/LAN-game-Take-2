@@ -23,22 +23,24 @@ def testrig(conn,addr):
                 if not players.__len__() > 4:
                     if players.count(addr) == 1:
                         conn.sendall(b'Failed To Connect Game Full')  # not working
-                        print("full")
-
-
-
-
-
                     else:
                         players.append(addr)
 
                         conn.sendall(b'CM')
-                        print(addr)
-                        print(players)
+                        print("player connected")
+
 
                 else:
                     conn.sendall(b'Failed To Connect Game Full') # not working
-                    print("full")
+            else:
+                if data.startswith(b'd'):
+                    #player_data =  "<" + (data.split(b"_")) + "..." + addr + ">"
+                    print(data)
+
+
+                if data == b'rd':
+                    print("DATA REQUEST")
+
 
 
 while True:
