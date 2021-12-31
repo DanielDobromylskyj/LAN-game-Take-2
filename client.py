@@ -211,6 +211,7 @@ while True:
 
 
             else:
+                print("Host, Port: ", HOST, PORT)
                 print("Attempting Connection...")
                 s.sendall(b'con')
                 data = s.recv(1024)

@@ -13,38 +13,44 @@ players = []
 #x.start()
 
 def testrig(conn,addr):
+    Break = False
     with conn:
-        while True:
-            data = conn.recv(1024)
-            if not data:
-                break
-            if data == b'ping':
-                conn.sendall(b'pong')
-            elif data == b'con':
-                if not players.__len__() > 4:
-                    if players.count(addr) == 1:
-                        conn.sendall(b'Failed To Connect Game Full')  # not working
+        try:
+            while True:
+                if Break == True:
+                    break
+                data = conn.recv(1024)
+                if not data:
+                    break
+                if data == b'ping':
+                    conn.sendall(b'pong')
+                elif data == b'con':
+                    if not players.__len__() > 4:
+                        if players.count(addr) == 1:
+                            conn.sendall(b'Failed To Connect Game Full')  # not working
+                        else:
+                            players.append(addr)
+
+                            conn.sendall(b'CM')
+                            print("player connected")
+
+
+
                     else:
-                        players.append(addr)
-
-                        conn.sendall(b'CM')
-                        print("player connected")
-
+                        conn.sendall(b'Failed To Connect Game Full') # not working
 
 
                 else:
-                    conn.sendall(b'Failed To Connect Game Full') # not working
+                    if data.startswith(b'd'):
+                        #player_data =  "<" + (data.split(b"_")) + "..." + addr + ">"
+                        pass
 
 
-            else:
-                if data.startswith(b'd'):
-                    #player_data =  "<" + (data.split(b"_")) + "..." + addr + ">"
-                    pass
-
-
-                if data == b'rd': # rd >>> read data - send back all needed player data
-                    print("DATA REQUEST")
-
+                    if data == b'rd': # rd >>> read data - send back all needed player data
+                        print("DATA REQUEST")
+        except:
+            print("Player Disconnected / Timed Out. Rejected Connection")
+            Break = True
 
 players_count = 0
 
