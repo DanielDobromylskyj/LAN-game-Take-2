@@ -1,7 +1,7 @@
 import socket
 import threading
 
-HOST = socket.gethostbyname(socket.gethostname())
+HOST = socket.gethostname()
 PORT = 65432
 print("Host: ", HOST)
 print("Port: ", PORT)

@@ -2,8 +2,16 @@ import socket
 import time
 import pygame
 
-HOST = 'DESKTOP-J5RPN01'  # The server's hostname or IP address DESKTOP-J5RPN01
-PORT = 65432        # The port used by the server
+HOST = input("Input Server Ip / Name: ")  # The server's hostname or IP address DESKTOP-J5RPN01
+PORT = input("Port from Server:")    # The port used by the server
+if HOST == ".":
+    HOST = 'DESKTOP-J5RPN01'
+    PORT = 65432
+
+try:
+    PORT = int(PORT)
+except:
+    print("Port may have failed. Still Continuing.")
 
 while True:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

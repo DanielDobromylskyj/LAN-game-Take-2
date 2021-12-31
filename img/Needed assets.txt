@@ -1,0 +1,12 @@
+Need Making:
+> Player Model / walking 5 frames / standing 1 frame
+
+Need Redoing:
+> Border (May Be Work-In-Progress)
+> Background
+
+In Progress:
+> Platforms -Thanks to: Harry S
+
+Done:
+> Gun / Mag -Thanks to: Harry S
