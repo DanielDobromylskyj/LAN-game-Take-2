@@ -1,6 +1,7 @@
 import socket
 import time
 import pygame
+import ast
 import threading
 
 HOST = input("Input Server Ip / Name: ")  # The server's hostname or IP address DESKTOP-J5RPN01
@@ -8,6 +9,8 @@ PORT = input("Port from Server:")    # The port used by the server
 if HOST == ".":
     HOST = 'DESKTOP-J5RPN01'
     PORT = 65432
+
+global character
 
 try:
     PORT = int(PORT)
@@ -18,6 +21,7 @@ while True:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
         time.sleep(0.5)
+
 
         # Validate Connection
 
@@ -47,6 +51,11 @@ while True:
                         self.vel_y = 0
                         self.jumped = False
                         self.direction = 0
+
+
+
+                        self.health = 100
+                        self.type = "UNKNOWN"
 
                     def update(self):
                         dx = 0
@@ -90,7 +99,6 @@ while True:
                         self.vel_y += 0.1
                         if self.vel_y > 8:
                             self.vel_y = 8
-                            print("CAPPED")
                         dy += self.vel_y
 
                         # check for collision
@@ -121,7 +129,12 @@ while True:
                         # draw player onto screen
                         win.blit(self.image, self.rect)
                         pygame.draw.rect(win, (255, 255, 255), self.rect, 2)
-                    # win.blit(self.FOW, (self.rect.x - 600, self.rect.y - 400))
+                        #win.blit(self.FOW, (self.rect.x - 600, self.rect.y - 400))
+                        strDATA = "data_" + str(self.health) + "," + self.type + "@" + str(self.rect.x) + "-" + str(self.rect.y)
+                        data = bytes(strDATA, encoding='utf-8')
+                        s.sendall(data)
+                        global character
+                        character = self.image
 
 
                 class World():
@@ -199,6 +212,22 @@ while True:
 
                     pu = threading.Thread(target=player.update())
                     pu.start()
+
+                    s.sendall(b'rd')
+                    data = s.recv(1024)
+                    x = data.decode("utf-8")
+                    data = ast.literal_eval(x)
+
+
+                    for players in data:
+                        coords_raw = players.split("@")
+                        coords_raw = coords_raw[1].split("-")
+                        x, y = coords_raw[0], coords_raw[1]
+                        try:
+                            win.blit(character, (int(x), int(y)))
+                        except:
+                            print("PRINT FAILED")
+
 
 
                     for event in pygame.event.get():
