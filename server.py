@@ -1,5 +1,6 @@
 import socket
 import threading
+import time
 
 HOST = socket.gethostname()
 PORT = 65432
@@ -8,12 +9,15 @@ print("Port: ", PORT)
 
 players = []
 
-
-#x = threading.Thread(target=NewPlayer, args=(addr,))
-#x.start()
+ticks_r = False
 
 def testrig(conn,addr):
+    global ticks_r
     Break = False
+    if ticks_r == False:
+        t = threading.Thread(target=tick, args=(conn, addr))
+        t.start()
+        ticks_r = True
     with conn:
         try:
             while True:
@@ -32,7 +36,7 @@ def testrig(conn,addr):
                             players.append(addr)
 
                             conn.sendall(b'CM')
-                            print("player connected")
+
 
 
 
@@ -48,11 +52,24 @@ def testrig(conn,addr):
 
                     if data == b'rd': # rd >>> read data - send back all needed player data
                         print("DATA REQUEST")
+
         except:
             print("Player Disconnected / Timed Out. Rejected Connection")
             Break = True
+            global players_count
+            players_count -= 1
+
+
 
 players_count = 0
+
+def tick( conn, addr):
+    CC = input("Press Enter To Start The Game!")
+    #with conn:
+    #    while True:
+    #        conn.sendall(b'tick')
+    #        time.sleep(0.01)
+
 
 while True:
     try:
@@ -63,6 +80,8 @@ while True:
             x = threading.Thread(target=testrig, args=(conn, addr))
             x.start()
             players_count += 1
+
+
     except:
         print("")
         print("")

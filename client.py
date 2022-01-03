@@ -1,6 +1,7 @@
 import socket
 import time
 import pygame
+import threading
 
 HOST = input("Input Server Ip / Name: ")  # The server's hostname or IP address DESKTOP-J5RPN01
 PORT = input("Port from Server:")    # The port used by the server
@@ -54,16 +55,16 @@ while True:
 
                         key = pygame.key.get_pressed()
                         if key[pygame.K_UP] and self.jumped == False:
-                            self.vel_y = -1
+                            self.vel_y = -5
                             self.jumped = True
                         if key[pygame.K_UP] == False and self.vel_y == 0:
                             self.jumped = False
                         if key[pygame.K_LEFT]:
-                            dx -= 1
+                            dx -= 3
                             self.counter += 1
                             self.direction = -1
                         if key[pygame.K_RIGHT]:
-                            dx += 1
+                            dx += 3
                             self.counter += 1
                             self.direction = 1
                         if key[pygame.K_LEFT] == False and key[pygame.K_RIGHT] == False:
@@ -86,9 +87,10 @@ while True:
                                 self.image = self.images_left[self.index]
 
                         # gravity
-                        self.vel_y += 0.006
+                        self.vel_y += 0.1
                         if self.vel_y > 8:
                             self.vel_y = 8
+                            print("CAPPED")
                         dy += self.vel_y
 
                         # check for collision
@@ -191,15 +193,19 @@ while True:
                 while run:
 
                     win.blit(backdrop, (0, 0))
-                    world.draw()
-                    player.update()
+
+                    wd = threading.Thread(target=world.draw)
+                    wd.start()
+
+                    pu = threading.Thread(target=player.update())
+                    pu.start()
+
 
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             run = False
 
-                    pygame.display.update()
-                    s.sendall(b'ping')
+                    pygame.display.flip()
 
                 pygame.quit()
 
@@ -211,7 +217,6 @@ while True:
 
 
             else:
-                print("Host, Port: ", HOST, PORT)
                 print("Attempting Connection...")
                 s.sendall(b'con')
                 data = s.recv(1024)
