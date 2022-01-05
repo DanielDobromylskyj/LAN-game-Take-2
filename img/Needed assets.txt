@@ -1,8 +1,8 @@
 Need Making:
-> Player Model / walking 5 frames / standing 1 frame
+> Player Model / walking 5 frames / standing is 1st frame
 
 Need Redoing:
-> Border (May Be Work-In-Progress)
+> Border 
 > Background
 
 In Progress:

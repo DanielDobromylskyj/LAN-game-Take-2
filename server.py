@@ -1,11 +1,21 @@
 import socket
 import threading
 import time
+import random
+import sys
 
 HOST = socket.gethostname()
 PORT = 65432
 print("Host: ", HOST)
 print("Port: ", PORT)
+
+amount_of_players = input("How Many Players Are Going To Play?")
+try:
+    amount_of_players = int(amount_of_players)
+    if amount_of_players <= 1:
+        sys.exit("Invalid Player Amount")
+except:
+    sys.exit("Invalid Player Amount")
 
 players = []
 
@@ -17,11 +27,6 @@ ticks_r = False
 def testrig(conn,addr):
     global ticks_r
     Break = False
-    if ticks_r == False:
-        t = threading.Thread(target=tick, args=(conn, addr))
-        t.start()
-        ticks_r = True
-        log = 0
     with conn:
         try:
             while True:
@@ -45,12 +50,14 @@ def testrig(conn,addr):
                                 number = logged.__len__()
                                 logged.append(number)
                                 log = number
-                                conn.sendall(b'CM')
-                                print(player_info)
+                                data = bytes("CM_" + str(log), encoding='utf-8')
+
+                                conn.sendall(data)
+
 
                             except Exception as e:
-                                print(e)
-                                print("[ERROR] A Major Error Has Ocured! Is this version stable? A Player has failed to join")
+                                pass
+
 
 
 
@@ -84,24 +91,49 @@ def testrig(conn,addr):
                         conn.sendto(data, addr)
 
         except Exception as e:
-            print("Player Disconnected / Timed Out. Rejected Connection")
             Break = True
             global players_count
             players_count -= 1
-            #print(e)
+            logged.pop(log)
+            print("You may want to restart the server if a game has NOT started")
 
+def split_player_info(info):
+    a = info.split(",")
+    health, more = a[0], a[1]
+    a = more.split("@")
+    G_K, coords = a[0], a[1]
+    a = coords.split("-")
+    x, y = a[0], a[1]
+    return health, G_K, x, y
 
 
 players_count = 0
 
-def tick( conn, addr):
-    pass
-    #CC = input("Press Enter To Start The Game!")
-    #with conn:
-    #    while True:
-    #        conn.sendall(b'tick')
-    #        time.sleep(0.01)
+def start_game(conn, addr):
+    try:
+        print("starting")
+        global logG
+        try:
+            logG = random.randint(0, players_count)
+        except:
+            print("[ERROR][MAJOR] Failed to calculate Gun / knife")
+        with conn:
 
+            global player_info
+            print(player_info)
+
+            current = player_info[logG]
+            health, Useless, x, y = split_player_info(current)
+            new = health + ",gun@" + x + "-" + y
+            print(new)
+            player_info.pop(logG)
+            player_info.insert(logG, new)
+    except Exception as e:
+        print("FATAL ERROR: ", e)
+
+
+
+Started = False
 
 while True:
     try:
@@ -112,11 +144,12 @@ while True:
             x = threading.Thread(target=testrig, args=(conn, addr))
             x.start()
             players_count += 1
+            if players_count == amount_of_players and Started == False:
+                start_game(conn, addr)
+                Started = True
 
 
     except:
-        print("")
-        print("")
         print("")
         print('[ERROR]: Port Already In use / Already Binded.')
 
