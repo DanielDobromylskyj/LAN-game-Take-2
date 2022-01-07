@@ -14,6 +14,11 @@ if HOST == ".":
 global character
 G_K = "UNKNOWN"
 
+global cooldown
+cooldown = 0
+bullets = []
+bullet_png = pygame.image.load("img/bullet.png")
+
 try:
     PORT = int(PORT)
 except:
@@ -35,6 +40,34 @@ while True:
                 if connected == True:
                     # start game
 
+                    def shoot(x, y ,direction):
+                        global bullets
+                        Hit = False
+                        dx = x
+                        dy = y + 30
+                        while Hit == False:
+                            if direction == 1:
+                                dx += 10
+                            elif direction == -1:
+                                dx -= 10
+                            else:
+                                pass
+
+                            if dx == x:
+                                print("Bad Bullet")
+                                break
+                            else:
+                                time.sleep(0.0001)
+
+                            for tile in world.tile_list:
+                                # check for collision on wall
+                                if tile[1].collidepoint(dx, dy):
+                                    Hit = True
+
+                            # check for player colition
+
+                            win.blit(bullet_png, (dx, dy))
+
                     class Player():
                         def __init__(self, x, y):
                             self.images_right = []
@@ -43,7 +76,7 @@ while True:
                             self.counter = 0
                             for num in range(1, 5):
                                 img_right = pygame.image.load(f'img/player{num}.png')
-                                img_right = pygame.transform.scale(img_right, (40, 40))
+                                img_right = pygame.transform.scale(img_right, (30, 60))
                                 img_left = pygame.transform.flip(img_right, True, False)
                                 self.images_right.append(img_right)
                                 self.images_left.append(img_left)
@@ -56,7 +89,11 @@ while True:
                             self.vel_y = 0
                             self.jumped = False
                             self.direction = 0
+                            self.let_go = True
 
+                            self.health_bar_full = pygame.image.load("img/health.png")
+                            self.health_bar_cover = pygame.image.load("img/Health_Cover.png")
+                            self.health_bar_border = pygame.image.load("img/Health_Border.png")
 
 
                             self.health = 100
@@ -68,26 +105,36 @@ while True:
                             walk_cooldown = 5
 
                             key = pygame.key.get_pressed()
-                            if key[pygame.K_UP] and self.jumped == False:
+                            if key[pygame.K_w] and self.jumped == False:
                                 self.vel_y = -5
                                 self.jumped = True
-                            if key[pygame.K_UP] == False and self.vel_y == 0:
+                            if key[pygame.K_w] == False and self.vel_y == 0:
                                 self.jumped = False
-                            if key[pygame.K_LEFT]:
+                            if key[pygame.K_a]:
                                 dx -= 3
                                 self.counter += 1
                                 self.direction = -1
-                            if key[pygame.K_RIGHT]:
+                            if key[pygame.K_d]:
                                 dx += 3
                                 self.counter += 1
                                 self.direction = 1
-                            if key[pygame.K_LEFT] == False and key[pygame.K_RIGHT] == False:
+                            if key[pygame.K_d] == False and key[pygame.K_RIGHT] == False:
                                 self.counter = 0
                                 self.index = 0
                                 if self.direction == 1:
                                     self.image = self.images_right[self.index]
                                 if self.direction == -1:
                                     self.image = self.images_left[self.index]
+
+                            for event in pygame.event.get():
+                                if event.type == pygame.MOUSEBUTTONDOWN:
+                                    mouse_presses = pygame.mouse.get_pressed()
+                                    if mouse_presses[0]:
+                                        x = threading.Thread(target=shoot, args=(self.rect.x, self.rect.y, self.direction))
+                                        x.start()
+
+
+
 
                             # do animation
                             if self.counter > walk_cooldown:
@@ -133,7 +180,7 @@ while True:
 
                             # draw player onto screen
                             #win.blit(self.image, self.rect)
-                            pygame.draw.rect(win, (255, 255, 255), self.rect, 2)
+                            #pygame.draw.rect(win, (255, 255, 255), self.rect, 2)
                             #win.blit(self.FOW, (self.rect.x - 600, self.rect.y - 400))
                             strDATA = "data_" + str(self.health) + "," + G_K + "@" + str(self.rect.x) + "-" + str(self.rect.y)
                             data = bytes(strDATA, encoding='utf-8')
@@ -143,6 +190,10 @@ while True:
                                 print("DATA failed to send")
                             global character
                             character = self.image
+                            win.blit(self.health_bar_full, (50, 550))
+                            win.blit(self.health_bar_cover, ((-150 + (200 - (self.health * 2))), 550))
+                            win.blit(self.health_bar_border, (49, 549))
+
 
 
                     class World():
@@ -269,6 +320,7 @@ while True:
                             if event.type == pygame.QUIT:
                                 run = False
 
+
                         pygame.display.flip()
 
                     pygame.quit()
@@ -299,7 +351,8 @@ while True:
                         # load images
 
                         backdrop = pygame.image.load("img/backdrop.png")
-    except:
+    except Exception as e:
+        print(e)
         reconnects += 1
         if reconnects > 4:
             print("Connection Lost. Aborting.")

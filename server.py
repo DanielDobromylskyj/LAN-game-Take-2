@@ -94,8 +94,11 @@ def testrig(conn,addr):
             Break = True
             global players_count
             players_count -= 1
-            logged.pop(log)
-            print("You may want to restart the server if a game has NOT started")
+            try:
+                logged.pop(log)
+            except:
+                pass
+            print("Non Vital 50% of the time: ", e)
 
 def split_player_info(info):
     a = info.split(",")
@@ -111,8 +114,12 @@ players_count = 0
 
 def start_game(conn, addr):
     try:
+        time.sleep(2)
         print("starting")
         global logG
+        global players_count
+
+        print(players_count)
         try:
             logG = random.randint(0, players_count)
         except:
@@ -126,6 +133,8 @@ def start_game(conn, addr):
             health, Useless, x, y = split_player_info(current)
             new = health + ",gun@" + x + "-" + y
             print(new)
+            print("LogG: ", logG)
+
             player_info.pop(logG)
             player_info.insert(logG, new)
     except Exception as e:
