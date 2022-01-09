@@ -21,7 +21,10 @@ players = []
 
 player_info = []
 player_info_quick = []
+
 logged = []
+logG = "not"
+
 ticks_r = False
 
 def testrig(conn,addr):
@@ -73,7 +76,6 @@ def testrig(conn,addr):
                             a = data.split(b'data_') # data format (health,k or g@x-y)
                             recv = a[1]
                             recv = recv.decode("utf-8")
-
                             player_info.pop(log)
                             player_info.insert(log, recv)
 
@@ -86,9 +88,14 @@ def testrig(conn,addr):
 
                     if data == b'rd': # rd >>> read data - send back all needed player data
                         data = bytes(str(player_info), encoding='utf-8')
-                        #s.sendall(data)
-
                         conn.sendto(data, addr)
+                    if data == b'gk':
+                        global logG
+                        if not logG == "not":
+                            data = bytes(str(logG), encoding='utf-8')
+                            conn.sendto(data, addr)
+                        else:
+                            conn.sendto(b'not', addr)
 
         except Exception as e:
             Break = True
@@ -115,28 +122,13 @@ players_count = 0
 def start_game(conn, addr):
     try:
         time.sleep(2)
-        print("starting")
         global logG
-        global players_count
+        global player_info
 
-        print(players_count)
         try:
-            logG = random.randint(0, players_count)
+            logG = random.randint(0, player_info.__len__() - 1)
         except:
             print("[ERROR][MAJOR] Failed to calculate Gun / knife")
-        with conn:
-
-            global player_info
-            print(player_info)
-
-            current = player_info[logG]
-            health, Useless, x, y = split_player_info(current)
-            new = health + ",gun@" + x + "-" + y
-            print(new)
-            print("LogG: ", logG)
-
-            player_info.pop(logG)
-            player_info.insert(logG, new)
     except Exception as e:
         print("FATAL ERROR: ", e)
 

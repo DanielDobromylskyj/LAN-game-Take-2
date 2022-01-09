@@ -3,6 +3,7 @@ import sys
 import time
 import pygame
 import ast
+import os
 import threading
 
 HOST = input("Server Ip / Name: ")  # The server's hostname or IP address DESKTOP-J5RPN01
@@ -14,8 +15,7 @@ if HOST == ".":
 global character
 G_K = "UNKNOWN"
 
-global cooldown
-cooldown = 0
+
 bullets = []
 bullet_png = pygame.image.load("img/bullet.png")
 
@@ -128,10 +128,11 @@ while True:
 
                             for event in pygame.event.get():
                                 if event.type == pygame.MOUSEBUTTONDOWN:
-                                    mouse_presses = pygame.mouse.get_pressed()
-                                    if mouse_presses[0]:
-                                        x = threading.Thread(target=shoot, args=(self.rect.x, self.rect.y, self.direction))
-                                        x.start()
+                                    if G_K == "gun":
+                                        mouse_presses = pygame.mouse.get_pressed()
+                                        if mouse_presses[0]:
+                                            x = threading.Thread(target=shoot, args=(self.rect.x, self.rect.y, self.direction))
+                                            x.start()
 
 
 
@@ -304,6 +305,19 @@ while True:
                         data = s.recv(1024)
                         x = data.decode("utf-8")
                         data = ast.literal_eval(x)
+                        try:
+                            s.sendall(b'gk')
+                            data2 = s.recv(1024)
+                            data2 = data2.decode("utf-8")
+                            try:
+                                if int(data2) == int(Log):
+                                    G_K = "gun"
+                            except:
+                                pass
+                        except Exception as e:
+                            exc_type, exc_obj, exc_tb = sys.exc_info()
+                            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                            print(exc_type, fname, exc_tb.tb_lineno)
 
 
                         for players in data:
@@ -360,4 +374,3 @@ while True:
             sys.exit("Timed Out. Failed to connect 5 times. Is the server online?")
         else:
             print("Connection Lost. Reconnecting...")
-
