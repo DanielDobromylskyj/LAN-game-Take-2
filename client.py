@@ -15,9 +15,13 @@ if HOST == ".":
 global character
 G_K = "UNKNOWN"
 
+adresses = ""
 
 bullets = []
 bullet_png = pygame.image.load("img/bullet.png")
+
+gun_display = pygame.image.load("img/gun_display.png")
+knife_display = pygame.image.load("img/knife_display.png")
 
 try:
     PORT = int(PORT)
@@ -42,9 +46,11 @@ while True:
 
                     def shoot(x, y ,direction):
                         global bullets
+
                         Hit = False
                         dx = x
                         dy = y + 30
+
                         while Hit == False:
                             if direction == 1:
                                 dx += 10
@@ -54,7 +60,7 @@ while True:
                                 pass
 
                             if dx == x:
-                                print("Bad Bullet")
+                                print("Bad Bullet | Not Shot")
                                 break
                             else:
                                 time.sleep(0.0001)
@@ -64,7 +70,7 @@ while True:
                                 if tile[1].collidepoint(dx, dy):
                                     Hit = True
 
-                            # check for player colition
+                            # check for player colition needed
 
                             win.blit(bullet_png, (dx, dy))
 
@@ -291,6 +297,8 @@ while True:
 
                     run = True
 
+
+
                     while run:
 
                         win.blit(backdrop, (0, 0))
@@ -305,6 +313,8 @@ while True:
                         data = s.recv(1024)
                         x = data.decode("utf-8")
                         data = ast.literal_eval(x)
+
+
                         try:
                             s.sendall(b'gk')
                             data2 = s.recv(1024)
@@ -312,12 +322,21 @@ while True:
                             try:
                                 if int(data2) == int(Log):
                                     G_K = "gun"
+                                    win.blit(gun_display,(300, 550))
+                                else:
+                                    G_K = "knife"
+                                    win.blit(knife_display, (300, 550))
+
+
+
                             except:
                                 pass
+
+
+
                         except Exception as e:
                             exc_type, exc_obj, exc_tb = sys.exc_info()
-                            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                            print(exc_type, fname, exc_tb.tb_lineno)
+                            print(exc_type, exc_tb.tb_lineno)
 
 
                         for players in data:

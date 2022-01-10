@@ -19,6 +19,8 @@ except:
 
 players = []
 
+shot = []
+
 player_info = []
 player_info_quick = []
 
@@ -80,11 +82,10 @@ def testrig(conn,addr):
                             player_info.insert(log, recv)
 
 
+
                         except Exception as e:
                             print(e)
                             print("[ERROR] A Major Error Has Ocured! Is this version stable? Player info has failed")
-
-
 
                     if data == b'rd': # rd >>> read data - send back all needed player data
                         data = bytes(str(player_info), encoding='utf-8')
@@ -97,7 +98,11 @@ def testrig(conn,addr):
                         else:
                             conn.sendto(b'not', addr)
 
+
+
         except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            print(exc_type, exc_tb.tb_lineno)
             Break = True
             global players_count
             players_count -= 1
